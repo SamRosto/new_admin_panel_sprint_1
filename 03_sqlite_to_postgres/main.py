@@ -1,25 +1,34 @@
 import sqlite3
 import os
 
-
 import psycopg2
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
 from dataclasses import asdict
+from dotenv import load_dotenv
 
 from models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
 from sqlite_worker import SQLiteLoader
 from pg_worker import PostgresSaver
 
+# load_dotenv()
+
+# dsl = {
+#     'dbname': 'movies_database', 
+#     'user': 'app', 
+#     'password': '123qwe', 
+#     'host': '127.0.0.1', 
+#     'port': 5432
+# }
+# dsl = os.environ.get('dsl')
 
 dsl = {
     'dbname': 'movies_database', 
-    'user': 'app', 
-    'password': '123qwe', 
+    'user': 'postgres', 
+    'password': '22111987', 
     'host': '127.0.0.1', 
-    'port': 5432
+    'port': 5433
 }
-
 
 class Connection:
     def __init__(self, pg_conn: _connection, sqlite_conn: sqlite3.Connection) -> None:
@@ -51,14 +60,11 @@ class Connection:
                     return dataclass_to_dict 
 
             for k, v in self.dataclass_objects.items():
-                print(k)
                 data = load_data_sqlite(k)
                 data_objects = create_object(data, v)
                 to_dicts = make_dicts(data_objects)
-                print(len(to_dicts))
 
                 # Load to Postgres in the loop
-                print('start PG uploading...')
                 saver_pg = PostgresSaver(self.pg_conn, k)
                 saver_pg.save_data(to_dicts)
 

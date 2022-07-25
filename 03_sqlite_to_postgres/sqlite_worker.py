@@ -18,10 +18,15 @@ class SQLiteLoader:
     def load_data(self):
         query = queries[self.table_name]
         self.cur.execute(query)
-        data = self.cur.fetchall()
+
+        data = []
+
+        while True:
+            records = self.cur.fetchmany(size=50)
+            if records:
+                for row in records:
+                    data.append(dict(row))
+            else:
+                break
+        
         return data
-
-
-
-
-

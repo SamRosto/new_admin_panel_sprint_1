@@ -40,7 +40,7 @@ class PostgresSaver:
 
     def save_data(self, data):    
         cur = self.conn.cursor()
-        PAGE_SIZE = len(data)//10
+        PAGE_SIZE = 50
         query = queries[self.table_name]
         execute_batch(cur, query, data, page_size=PAGE_SIZE)
 
