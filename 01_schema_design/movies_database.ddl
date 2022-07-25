@@ -71,4 +71,4 @@ FOREIGN KEY (genre_id)
 REFERENCES content.genre(id)
 ON DELETE CASCADE;
 
-CREATE UNIQUE INDEX film_work_person_idx ON content.person_film_work (film_work_id, person_id);
+CREATE UNIQUE INDEX film_work_person_idx ON content.person_film_work (film_work_id);
