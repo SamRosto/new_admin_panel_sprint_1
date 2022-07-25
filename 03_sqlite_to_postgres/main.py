@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from pathlib import Path
 
 import psycopg2
 from psycopg2.extensions import connection as _connection
@@ -11,7 +12,6 @@ from models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
 from sqlite_worker import SQLiteLoader
 from pg_worker import PostgresSaver
 
-# load_dotenv()
 
 # dsl = {
 #     'dbname': 'movies_database', 
@@ -20,7 +20,6 @@ from pg_worker import PostgresSaver
 #     'host': '127.0.0.1', 
 #     'port': 5432
 # }
-# dsl = os.environ.get('dsl')
 
 dsl = {
     'dbname': 'movies_database', 
@@ -29,6 +28,7 @@ dsl = {
     'host': '127.0.0.1', 
     'port': 5433
 }
+
 
 class Connection:
     def __init__(self, pg_conn: _connection, sqlite_conn: sqlite3.Connection) -> None:
