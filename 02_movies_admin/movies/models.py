@@ -67,6 +67,11 @@ class GenreFilmwork(UUIDMixin, models.Model):
     class Meta:
         db_table = "content\".\"genre_film_work"
 
+        indexes = [
+            models.Index(fields=['film_work']),
+            models.Index(fields=['film_work'], name='genre_film_work_idx'),
+        ]
+
 
 class Gender(models.TextChoices):
     male = _('male')
@@ -86,10 +91,19 @@ class Person(UUIDMixin, models.Model):
 
 
 class PersonFilmwork(UUIDMixin):
+    class RoleChoice(models.TextChoices):
+        DIRECTOR = _('Director')
+        ACTOR = _('Actor')
+        SCREEWRITER = _('Screenwriter')
+
     film_work = models.ForeignKey(Filmwork, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    role = models.TextField(_('Role'), null=True)
+    role = models.CharField(_('Role'), max_length=50, choices=RoleChoice.choices, default=RoleChoice.ACTOR, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "content\".\"person_film_work"
+        indexes = [
+            models.Index(fields=['film_work']),
+            models.Index(fields=['film_work'], name='film_work_person_idx'),
+        ]
