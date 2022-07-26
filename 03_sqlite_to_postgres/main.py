@@ -1,35 +1,28 @@
 import sqlite3
 import os
-from pathlib import Path
 
 import psycopg2
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
 from dataclasses import asdict
-from dotenv import load_dotenv
+from contextlib import contextmanager
 
 from models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
 from sqlite_worker import SQLiteLoader
 from pg_worker import PostgresSaver
+import settings
 
 
-# dsl = {
-#     'dbname': 'movies_database', 
-#     'user': 'app', 
-#     'password': '123qwe', 
-#     'host': '127.0.0.1', 
-#     'port': 5432
-# }
-
-dsl = {
-    'dbname': 'movies_database', 
-    'user': 'postgres', 
-    'password': '22111987', 
-    'host': '127.0.0.1', 
-    'port': 5433
+dsn = {
+    'dbname': settings.DBNAME,
+    'user': settings.USER,
+    'password': settings.PASSWORD,
+    'host': settings.HOST,
+    'port': settings.PORT,
 }
 
 
+@contextmanager
 class Connection:
     def __init__(self, pg_conn: _connection, sqlite_conn: sqlite3.Connection) -> None:
         self.pg_conn = pg_conn
@@ -73,6 +66,6 @@ if __name__ == '__main__':
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.join(BASE_DIR, "db.sqlite")
 
-    with sqlite3.connect(db_path) as sqlite_conn, psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
+    with sqlite3.connect(db_path) as sqlite_conn, psycopg2.connect(**dsn, cursor_factory=DictCursor) as pg_conn:
         connection = Connection(sqlite_conn=sqlite_conn, pg_conn=pg_conn)
     
