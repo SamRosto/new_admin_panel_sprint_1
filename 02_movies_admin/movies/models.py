@@ -22,39 +22,62 @@ class UUIDMixin(models.Model):
         abstract = True
 
 
+class Gender(models.TextChoices):
+    male = "male", _("male")
+    female = "female", _("female")
+
+
 class Genre(TimeStampMixin, UUIDMixin):
-    name = models.CharField(_('Name'), max_length=255)
-    description = models.TextField(_('Description'), blank=True)
+    name = models.CharField(_("Name"), max_length=255)
+    description = models.TextField(_("Description"), blank=True)
 
     def __str__(self) -> str:
         return self.name
 
     class Meta:
-        db_table = "content\".\"genre"
-        verbose_name = _('Genre')
-        verbose_name_plural = _('Genres')
+        db_table = 'content"."genre'
+        verbose_name = _("Genre")
+        verbose_name_plural = _("Genres")
+
+
+class Person(UUIDMixin, models.Model):
+    full_name = models.CharField(_("Name"), max_length=125)
+    gender = models.TextField(_("Gender"), choices=Gender.choices, default=None)
+
+    def __str__(self):
+        return self.full_name
+
+    class Meta:
+        db_table = 'content"."person'
+        verbose_name = _("Actor")
+        verbose_name_plural = _("Actors")
 
 
 class Filmwork(TimeStampMixin, UUIDMixin):
     class TypeChoice(models.TextChoices):
-        TV_SHOW = _('tv_show')
-        MOVIE = _('movie')
+        TV_SHOW = "tv_show", _("tv_show")
+        MOVIE = "movie", _("movie")
 
-
-    title = models.CharField(_('Title'), max_length=255)
-    description = models.TextField(_('Description'), blank=True)
-    creation_date = models.DateField(_('Premiere Date'), editable=True)
-    rating = models.FloatField(_('Rating'), blank=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
-    type = models.CharField(_('Type'), max_length=50, choices=TypeChoice.choices, default=TypeChoice.MOVIE)
-    genres = models.ManyToManyField(Genre, through='GenreFilmWork')
-    file_path = models.FileField(_('file'), blank=True, null=True, upload_to='movies/')
-
+    title = models.CharField(_("Title"), max_length=255)
+    description = models.TextField(_("Description"), blank=True)
+    creation_date = models.DateField(_("Premiere Date"), editable=True)
+    rating = models.FloatField(
+        _("Rating"),
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+    type = models.CharField(
+        _("Type"), max_length=50, choices=TypeChoice.choices, default=TypeChoice.MOVIE
+    )
+    genres = models.ManyToManyField(Genre, through="GenreFilmWork")
+    persons = models.ManyToManyField(Person, through="PersonFilmWork")
+    file_path = models.FileField(_("file"), blank=True, null=True, upload_to="movies/")
 
     def __str__(self) -> str:
         return self.title
 
     class Meta:
-        db_table = "content\".\"film_work"
+        db_table = 'content"."film_work'
         verbose_name = "Кинопроизведение"
         verbose_name_plural = "Кинопроизведения"
 
@@ -65,45 +88,45 @@ class GenreFilmwork(UUIDMixin, models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "content\".\"genre_film_work"
+        db_table = 'content"."genre_film_work'
 
+        # indexes = [
+        #     # models.Index(fields=["film_work"]),
+        #     models.Index(fields=["film_work"], name="genre_film_work_idx"),
+        # ]
         indexes = [
-            models.Index(fields=['film_work']),
-            models.Index(fields=['film_work'], name='genre_film_work_idx'),
+            models.Index(fields=["film_work", "genre"], name="genre_film_work_idx"),
         ]
 
-
-class Gender(models.TextChoices):
-    male = _('male')
-    female = _('female')
-
-class Person(UUIDMixin, models.Model):
-    full_name = models.CharField(_('Name'), max_length = 125)
-    gender = models.TextField(_('Gender'), choices=Gender.choices, default=None)
-
-    def __str__(self):
-        return self.full_name
-
-    class Meta:
-        db_table = "content\".\"person"
-        verbose_name = _('Actor')
-        verbose_name_plural = _('Actors')
+        unique_together = ["film_work", "genre"]
 
 
 class PersonFilmwork(UUIDMixin):
     class RoleChoice(models.TextChoices):
-        DIRECTOR = _('Director')
-        ACTOR = _('Actor')
-        SCREEWRITER = _('Screenwriter')
+        DIRECTOR = "Director", _("Director")
+        ACTOR = "Actor", _("Actor")
+        SCREEWRITER = "Screenwriter", _("Screenwriter")
 
     film_work = models.ForeignKey(Filmwork, on_delete=models.CASCADE)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    role = models.CharField(_('Role'), max_length=50, choices=RoleChoice.choices, default=RoleChoice.ACTOR, null=True)
+    role = models.CharField(
+        _("Role"),
+        max_length=50,
+        choices=RoleChoice.choices,
+        default=RoleChoice.ACTOR,
+        null=True,
+    )
     creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "content\".\"person_film_work"
+        db_table = 'content"."person_film_work'
+        # indexes = [
+        #     models.Index(fields=["film_work"]),
+        # ]
+
         indexes = [
-            models.Index(fields=['film_work']),
-            models.Index(fields=['film_work'], name='film_work_person_idx'),
+            models.Index(
+                fields=["film_work", "person", "role"], name="film_work_person_idx"
+            ),
         ]
+        unique_together = ["film_work", "person", "role"]
