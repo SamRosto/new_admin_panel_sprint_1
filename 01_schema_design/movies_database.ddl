@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS content.film_work (
     creation_date DATE,
     rating FLOAT,
     type TEXT NOT NULL,
-    created timestamp with time zone,
+    created timestamp with time zoned,
     modified timestamp with time zone
 );
 

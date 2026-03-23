@@ -16,7 +16,7 @@ class FilmWork:
     id: uuid.UUID
     title: str
     description: str
-    creation_date: t.Optional[dt.datetime]
+    creation_date: t.Optional[dt.datetime] | None
     rating: float
     type: MovieType 
     updated_at: str
