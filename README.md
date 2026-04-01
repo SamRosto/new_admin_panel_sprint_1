@@ -1,12 +1,26 @@
-# Greetings traveller
+# Гайд как запустить приложение
 
-Мы рады, что вы приступили к выполнению 1 задания из курса Middle Python-разработчик.
- 
-Описание структуры и порядок выполнения проекта:
-1. `schema_design` - раздел c материалами для архитектуры базы данных.
-2. `movies_admin` - раздел с материалами для панели администратора.
-3. `sqlite_to_postgres` - раздел с материалами по миграции данных.
+Запустить docker compose
+```
+docker compose up -d --build
 
-Напоминаем, что все три части работы нужно сдавать на ревью одновременно.
+Создать схему для Postgres
+```
+docker compose exec db psql -U app -d movies_database -c "CREATE SCHEMA content AUTHORIZATION app;"
 
-Успехов!
+Проверить что схема `content` создалась
+```
+docker compose exec db psql -U app -d movies_database -c "\dt"
+docker compose exec db psql -U app -d movies_database -c "\dt content.*"
+
+Применить миграции
+```
+docker compose exec web python manage.py migrate
+
+Применить загрузку данных из SQLite в Postgres
+```
+docker compose --profile import run --rm sqlite_to_postgres
+
+Админка будет доступеа по адресу `http://localhost:8000/admin/`
+
+API будет доступно по адресу `http://localhost:8000/api/v1/movies/`
