@@ -1,17 +1,16 @@
 services:
   db:
     image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: movies_database
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: 123qwe
-      DB_HOST: db
-    container_name: movies_db
-    restart: unless-stopped
     env_file:
       - .env
-    ports:
-      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    container_name: movies_db
+    restart: unless-stopped
+    expose:
+      - "5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
@@ -58,25 +57,14 @@ services:
     working_dir: /app
     command: python main.py
     env_file:
-      - .env
+    - .env
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: movies_database
-      DB_USER: app
-      DB_PASSWORD: 123qwe
-      SQLITE_PATH: /app/db.sqlite
-
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: movies_database
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: 123qwe
-      PGHOST: db
-      PGPORT: 5432
-      PGDATABASE: movies_database
-      PGUSER: app
-      PGPASSWORD: 123qwe
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SQLITE_PATH: ${SQLITE_PATH}
     depends_on:
       db:
         condition: service_healthy

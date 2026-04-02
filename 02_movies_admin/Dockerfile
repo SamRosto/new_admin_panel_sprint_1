@@ -22,9 +22,8 @@ RUN  mkdir -p /var/www/static/ \
 
 COPY . .
 
-# RUN python manage.py collectstatic --no-input
-# RUN python manage.py migrate
-
 EXPOSE 8000
 
-ENTRYPOINT ["uwsgi", "--strict", "--ini", "uwsgi.ini"]
+CMD ["uwsgi", "--strict", "--ini", "uwsgi.ini"]
+
+
