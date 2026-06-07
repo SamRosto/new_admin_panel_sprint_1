@@ -14,7 +14,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app -d movies_database"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -97,9 +97,9 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-      ELASTIC_HOST: ${ES_HOST}
-      ELASTIC_INDEX: ${ES_INDEX}
-      STATE_FILE: ${/state/etl_state.json}
+      ES_HOST: ${ES_HOST}
+      ES_INDEX: ${ES_INDEX}
+      STATE_FILE: /state/etl_state.json
     restart: always
     volumes:
       - etl_state:/state

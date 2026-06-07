@@ -12,3 +12,7 @@ class State:
     def set(self, key: str, value):
         self.data[key] = value
         self.storage.save(self.data)
+
+    def update_many(self, updates: dict):
+        self.data.update(updates)
+        self.storage.save(self.data)

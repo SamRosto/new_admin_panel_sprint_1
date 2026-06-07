@@ -6,13 +6,27 @@ class PostgresExtractor:
     def __init__(self, dsn: str):
         self.dsn = dsn
         self.conn = None
-        self._connect()
 
     def _connect(self):
         self.conn = psycopg2.connect(self.dsn, cursor_factory=RealDictCursor)
         self.conn.autocommit = True
 
+    def close(self):
+        if self.conn is not None:
+            self.conn.close()
+            self.conn = None
+
+    def __enter__(self):
+        self._connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
     def _fetchall(self, query: str, params: dict):
+        if self.conn is None:
+            self._connect()
         try:
             with self.conn.cursor() as cur:
                 cur.execute(query, params)
